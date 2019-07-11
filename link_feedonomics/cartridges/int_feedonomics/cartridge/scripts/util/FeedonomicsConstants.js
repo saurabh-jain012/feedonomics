@@ -40,7 +40,12 @@ var FILE_EXTENSTION = {
     CSV: 'csv'
 };
 
-var IMAGE_TYPE = 'large';
+var IMAGE_TYPES = {
+    LARGE: 'large',
+    MEDIUM: 'medium',
+    SMALL: 'small'
+};
+
 var FILE_SEPARATOR = ',';
 
 module.exports = {
@@ -48,6 +53,6 @@ module.exports = {
     HEADER_VALUES: HEADER_VALUES,
     FILE_NAME: FILE_NAME,
     FILE_EXTENSTION: FILE_EXTENSTION,
-    IMAGE_TYPE: IMAGE_TYPE,
+    IMAGE_TYPES: IMAGE_TYPES,
     FILE_SEPARATOR: FILE_SEPARATOR
 };

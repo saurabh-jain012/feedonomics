@@ -17,14 +17,16 @@ var chunks = 0;
 var processedAll = true;
 var skipMaster = false;
 var availableOnly = false;
+var options = {};
 
 /**
  * Adds the column value to the CSV line Array of Product Feed export CSV file
  * @param {dw.catalog.Product} product - SFCC Product
  * @param {Array} csvProductArray - CSV  Array
  * @param {Object} columnValue - Catalog Feed Column
+ * @param {Object} options - Product Data Options
  */
-function writeProductExportField(product, csvProductArray, columnValue) {
+function writeProductExportField(product, csvProductArray, columnValue, options) {
     switch (columnValue) {
             // Product ID
         case FConstants.HEADER_VALUES.ID:
@@ -48,7 +50,7 @@ function writeProductExportField(product, csvProductArray, columnValue) {
             break;
             // Product Image
         case FConstants.HEADER_VALUES.IMAGE:
-            csvProductArray.push(FeedonomicsHelpers.getProductImage(product) || '');
+            csvProductArray.push(FeedonomicsHelpers.getProductImage(product, options) || '');
             break;
             // Product Link
         case FConstants.HEADER_VALUES.PRODUCT_LINK:
@@ -89,7 +91,7 @@ function writeProductExportField(product, csvProductArray, columnValue) {
             break;
             // Product's Top 10 Images
         case FConstants.HEADER_VALUES.ADDTIONAL_IMAGE_LINKS:
-            csvProductArray.push(FeedonomicsHelpers.getAllImages(product));
+            csvProductArray.push(FeedonomicsHelpers.getAllImages(product, options));
             break;
             // Product's Custom Attributes JSON
         case FConstants.HEADER_VALUES.CUSTOM_FIELDS:
@@ -128,6 +130,7 @@ exports.beforeStep = function () {
     var args = arguments[0];
 
     var targetFolder = args.TargetFolder;
+
     FeedonomicsHelpers.setLocale(args.LocaleID);
 
     if (!targetFolder) {
@@ -141,6 +144,9 @@ exports.beforeStep = function () {
     if (args.AvailableOnly) {
         availableOnly = args.AvailableOnly;
     }
+
+    // Set Image View Types
+    options.viewTypes = FeedonomicsHelpers.getImageViewTypes(args.ImageViewTypes);
 
     var FileWriter = require('dw/io/FileWriter');
     var CSVStreamWriter = require('dw/io/CSVStreamWriter');
@@ -190,7 +196,7 @@ exports.process = function (product) { // eslint-disable-line consistent-return
         if ((!skipMaster || !product.isMaster()) && (!availableOnly || FeedonomicsHelpers.getAvailabilityStatus(product))) {
             var csvProductArray = [];
             headerColumn.forEach(function (columnValue) { // eslint-disable-line
-                writeProductExportField(this, csvProductArray, columnValue);
+                writeProductExportField(this, csvProductArray, columnValue, options);
             }, product);
             return csvProductArray;
         }

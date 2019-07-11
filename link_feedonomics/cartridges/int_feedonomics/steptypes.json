@@ -81,7 +81,7 @@
                 "after-chunk-function":"afterChunk",
                 "write-function":"write",
                 "after-step-function":"afterStep",
-                "chunk-size":10000,
+                "chunk-size":1000,
                 "parameters": {
                     "parameters": [{
                             "@name":"TargetFolder",
@@ -121,6 +121,13 @@
                             "@type":"string",
                             "@required":"false",
                             "@trim":"true"
+                        },
+                        {
+                            "@name":"ImageViewTypes",
+                            "description":"Product Image View Type(s)",
+                            "@type":"string",
+                            "@required":"false",
+                            "@trim":"true"
                         }
                     ]
                 },
@@ -150,7 +157,7 @@
                 "write-function":"write",
                 "after-step-function":"afterStep",
                 "after-chunk-function":"afterChunk",
-                "chunk-size":10000,
+                "chunk-size":1000,
                 "parameters": {
                     "parameters": [{
                             "@name":"TargetFolder",

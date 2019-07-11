@@ -48,17 +48,38 @@ function generateCSVHeader(exportType) {
 }
 
 /**
+ * Creates the Product's View Type Array
+ * @param {Object} options View Type
+ * @returns {Array} imageViewTypes
+ */
+function getImageViewTypes(viewTypes) {
+    var LinkedHashSet = require('dw/util/LinkedHashSet');
+    var ArrayList = require('dw/util/ArrayList');
+    var viewTypesArr = viewTypes ? viewTypes.split(FConstants.FILE_SEPARATOR) : [];
+    var viewTypesSet = new LinkedHashSet(new ArrayList(viewTypesArr));
+    viewTypesSet.add(FConstants.IMAGE_TYPES.LARGE);
+    viewTypesSet.add(FConstants.IMAGE_TYPES.MEDIUM);
+    viewTypesSet.add(FConstants.IMAGE_TYPES.SMALL);
+    return viewTypesSet.toArray();
+}
+
+/**
  * Calculates the Product's Image Absolute URL
  * @param {dw.catalog.Product} product - Product
+ * @param {Object} options View Type
  * @returns {string|null} - Product's Image Absolute URL or null
  */
-function getProductImage(product) {
-    var imageType = FConstants.IMAGE_TYPE;
-    var productImage = product.getImage(imageType);
-    if (productImage) {
-        return productImage.getAbsURL().toString();
+function getProductImage(product, options) {
+    var imageTypes = options.viewTypes;
+    var imageUrl = null;
+    for (var index=0; index < imageTypes.length; index++) {
+        var productImage = product.getImage(imageTypes[index]);
+        if (productImage) {
+            imageUrl = productImage.getAbsURL().toString();
+            break;
+        }
     }
-    return null;
+    return imageUrl;
 }
 
 /**
@@ -187,27 +208,32 @@ function getAllProductTypes(product) {
 /**
  * Returns All Product Images
  * @param {dw.catalog.Product} product - Product
+ * @param {Object} options View Type
  * @returns {string} all images of product of default type large
  */
-function getAllImages(product) {
-    var imageType = FConstants.IMAGE_TYPE;
-    var productImageList = product.getImages(imageType);
-    if (productImageList && productImageList.length > 0) {
-        var imageArray = [];
-        var productImageListItr = productImageList.iterator();
-        var count = 0;
-        while (productImageListItr.hasNext()) {
-            var productImage = productImageListItr.next();
-            imageArray.push(productImage.getAbsURL().toString());
-            // Push only Top 10 images
-            if (count === 9) {
-                break;
+function getAllImages(product, options) {
+    var imageTypes = options.viewTypes;
+    var imageArray = [];
+    var count = 0;
+    for (var index=0; index < imageTypes.length ; index++) {
+        var productImageList = product.getImages(imageTypes[index]);
+        if (productImageList && productImageList.length > 0) {
+            var productImageListItr = productImageList.iterator();
+            while (productImageListItr.hasNext()) {
+                var productImage = productImageListItr.next();
+                imageArray.push(productImage.getAbsURL().toString());
+                // Push only Top 10 images
+                ++count;
+                if (count === 10) {
+                    break;
+                }
             }
-            count++;
         }
-        return imageArray.join(FConstants.FILE_SEPARATOR);
+        if (count === 10) {
+            break;
+        }
     }
-    return '';
+    return imageArray.length > 0 ? imageArray.join(FConstants.FILE_SEPARATOR) : '';
 }
 
 /**
@@ -375,5 +401,6 @@ module.exports = {
     calculatePromoPrice: calculatePromoPrice,
     calculatePriceBookPrices: calculatePriceBookPrices,
     calculateAllPriceBooksPrices: calculateAllPriceBooksPrices,
-    setLocale: setLocale
+    setLocale: setLocale,
+    getImageViewTypes: getImageViewTypes
 };
